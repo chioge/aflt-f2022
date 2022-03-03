@@ -227,27 +227,65 @@ class FSA:
 
 	def reverse(self) -> FSA:
 		""" computes the reverse of the FSA """
+		fsa_r = FSA(self.R)
 
-		# Homework 1: Question 3
-		raise NotImplementedError
+		for i in self.Q:
+			for a,j,w in self.arcs(i):
+				fsa_r.add_arc(j, a, i, w)
+
+		for q,w in self.F:
+			fsa_r.set_I(q)
+
+		for q,w in self.I:
+			fsa_r.set_F(q)
+		
+		return fsa_r
 
 	def accessible(self) -> set:
 		""" computes the set of acessible states """
+		accessible = set([])
 
-		# Homework 1: Question 3
-		raise NotImplementedError
+		
+		cylic, finished = self.dfs()
+		for s in finished:
+			accessible.add(s)
+
+		return accessible
 
 	def coaccessible(self) -> set:
-		""" computes the set of co-acessible states """
+		""" computes the set of acessible states """
+		coaccessible = set([])
+		fsa_r = self.reverse()
+		
+		cylic, finished = fsa_r.dfs()
+		for s in finished:
+			coaccessible.add(s)
 
-		# Homework 1: Question 3
-		raise NotImplementedError
+		return coaccessible
+		
 
 	def trim(self) -> FSA:
 		""" keeps only those states that are both accessible and co-accessible """
+		fsa_t = FSA(self.R)
+		accessible = self.accessible()
+		coaccessible = self.coaccessible()
+		intersection = accessible.intersection(coaccessible)
 
-		# Homework 1: Question 3
-		raise NotImplementedError
+		for i in self.Q:
+			if i in intersection:
+				for a,j,w in self.arcs(i):
+					if j in intersection:
+						fsa_t.add_arc(i, a, j, w)
+
+		for q,w in self.F:
+			if q in intersection:
+				fsa_t.set_F(q)
+
+		for q,w in self.I:
+			if q in intersection:
+				fsa_t.set_I(q)
+
+		return fsa_t
 
 	def union(self, fsa) -> FSA:
 		""" construct the union of the two FSAs """
