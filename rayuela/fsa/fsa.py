@@ -215,9 +215,13 @@ class FSA:
 
 	@property
 	def deterministic(self) -> bool:
-
-		# Homework 1: Question 2
-		raise NotImplementedError
+		for i in self.Q:
+			symbols = set([])
+			for a,j,w in self.arcs(i):
+				if a in symbols:
+					return False
+				symbols.add(a)
+		return True
 
 	@property
 	def pushed(self) -> bool:

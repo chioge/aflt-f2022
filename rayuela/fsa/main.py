@@ -29,3 +29,5 @@ fsa.set_F(State(6))
 fsa_r = fsa.reverse()
 
 fsa_t = fsa.trim()
+
+print(fsa.deterministic)
