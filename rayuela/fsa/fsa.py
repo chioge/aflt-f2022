@@ -218,16 +218,20 @@ class FSA:
 		for i in self.Q:
 			symbols = set([])
 			for a,j,w in self.arcs(i):
-				if a in symbols:
+				if (a in symbols or a == ε) and w != self.R.zero:
 					return False
 				symbols.add(a)
 		return True
 
 	@property
 	def pushed(self) -> bool:
-
-		# Homework 1: Question 2
-		raise NotImplementedError
+		sum = self.R.zero
+		for i in self.Q:
+			sum += self.ρ[i]
+			for a,j,w in self.arcs(i):
+				sum += w
+		
+		return sum == self.R.one
 
 	def reverse(self) -> FSA:
 		""" computes the reverse of the FSA """
@@ -292,16 +296,33 @@ class FSA:
 		return fsa_t
 
 	def union(self, fsa) -> FSA:
-		""" construct the union of the two FSAs """
+		fsa_u = self.copy()
+		size_Q = len(fsa_u.Q)
 
-		# Homework 1: Question 4
-		raise NotImplementedError
+		for i in fsa.Q:
+			for a,j,w in fsa.arcs(i):
+				fsa_u.add_arc(State(i.idx+size_Q), a, State(j.idx+size_Q), w)
+
+		for q,w in fsa.F:
+			fsa_u.set_F(State(q.idx+size_Q))
+
+		for q,w in self.I:
+			fsa_u.set_I(State(q.idx+size_Q))
+
+		return fsa_u
 
 	def concatenate(self, fsa) -> FSA:
 		""" construct the concatenation of the two FSAs """
+		fsa_c = self.union(fsa)
+		size_Q = len(self.Q)
 
-		# Homework 1: Question 4
-		raise NotImplementedError
+
+		for q1,w1 in self.F:
+			for q2,w2 in fsa.I:
+				fsa_c.add_arc(q1, ε, State(q2.idx+size_Q), self.ρ[q1])
+
+
+		return fsa_c
 
 	def closure(self) -> FSA:
 		""" compute the Kleene closure of the FSA """
