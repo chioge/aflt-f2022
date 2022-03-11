@@ -297,38 +297,42 @@ class FSA:
 
 	def union(self, fsa) -> FSA:
 		fsa_u = self.copy()
-		size_Q = len(fsa_u.Q)
 
 		for i in fsa.Q:
 			for a,j,w in fsa.arcs(i):
-				fsa_u.add_arc(State(i.idx+size_Q), a, State(j.idx+size_Q), w)
+				fsa_u.add_arc(State(f'_{i.idx}'), a, State(f'_{j.idx}'), w)
 
 		for q,w in fsa.F:
-			fsa_u.set_F(State(q.idx+size_Q))
+			fsa_u.set_F(State(f'_{q.idx}'))
 
 		for q,w in self.I:
-			fsa_u.set_I(State(q.idx+size_Q))
+			fsa_u.set_I(State(f'_{q.idx}'))
 
 		return fsa_u
 
 	def concatenate(self, fsa) -> FSA:
 		""" construct the concatenation of the two FSAs """
 		fsa_c = self.union(fsa)
-		size_Q = len(self.Q)
-
 
 		for q1,w1 in self.F:
 			for q2,w2 in fsa.I:
-				fsa_c.add_arc(q1, ε, State(q2.idx+size_Q), self.ρ[q1])
+				fsa_c.add_arc(q1, ε, State(f'_{q2.idx}'), w1)
 
 
 		return fsa_c
 
 	def closure(self) -> FSA:
-		""" compute the Kleene closure of the FSA """
+		fsa_k = self.copy()
 
-		# Homework 1: Question 4
-		raise NotImplementedError
+		fsa_k.set_I(State('_i'))
+		fsa_k.set_F(State('_i'))
+
+		for q_i,w_i in fsa_k.I:
+			fsa_k.add_arc(State('_i'), ε, q_i, w_i)
+			for q_f,w_f in fsa_k.F:
+				fsa_k.add_arc(q_f, ε, q_i, w_f)
+
+		return fsa_k
 
 	def pathsum(self, strategy=Strategy.LEHMANN):
 		if self.acyclic:
