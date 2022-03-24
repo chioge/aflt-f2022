@@ -176,7 +176,23 @@ class Pathsum:
 		return pathsum
 
 	def viterbi_fwd(self):
-		raise NotImplementedError
+
+		assert self.fsa.acyclic
+
+		# chart
+		α = self.R.chart()
+
+		# base case (paths of length 0)
+		for q, w in self.fsa.I:
+			α[q] = w
+
+		# recursion
+		for p in self.fsa.toposort(rev=False):
+			for _, q, w in self.fsa.arcs(p):
+				α[q] += α[p] * w
+
+		return frozendict(α)
+
 
 	def viterbi_bwd(self):
 		""" The Viterbi algorithm run backwards. """
