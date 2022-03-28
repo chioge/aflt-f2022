@@ -1,6 +1,7 @@
 from __future__ import annotations
 import copy
 import numpy as np
+
 from frozendict import frozendict
 from itertools import product
 
@@ -341,10 +342,20 @@ class FSA:
 		return pathsum.pathsum(strategy)
 
 	def edge_marginals(self) -> dict:
-		""" computes the edge marginals μ(q→q') """
+		# chart
+		m = self.R.chart()
 
-		# Homework 2: Question 2
-		raise NotImplementedError
+		pathsum = Pathsum(self)
+
+		α = pathsum.viterbi_fwd()
+		𝜷 = pathsum.viterbi_bwd()
+
+		for i in self.Q:
+			for a,j,w in self.arcs(i):
+				m[(i,a,j)] = α[i] * 𝜷[j] * w
+
+
+		return frozendict(m)
 
 	def intersect(self, fsa):
 		"""
