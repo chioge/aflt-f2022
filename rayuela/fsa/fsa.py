@@ -158,6 +158,38 @@ class FSA:
 
 		return F
 
+	def dfs_2(self):
+		""" Depth-first search (Cormen et al. 2019; Section 22.3) """
+
+		in_progress, finished = set([]), {}
+		cyclic, counter = False, 0
+
+		def _dfs(p):
+			nonlocal in_progress
+			nonlocal finished
+			nonlocal cyclic
+			nonlocal counter
+
+			in_progress.add(p)
+
+			for _, q, _ in self.arcs(p):
+				if q in in_progress:
+					cyclic = True
+				elif q not in finished:
+					_dfs(q)
+
+			in_progress.remove(p)
+			finished[p] = counter
+			counter += 1
+
+		for q, _ in self.I: _dfs(q)
+		
+		for q in self.Q: 
+			if (q not in finished):
+				_dfs(q)
+
+		return cyclic, finished
+
 	def dfs(self):
 		""" Depth-first search (Cormen et al. 2019; Section 22.3) """
 
